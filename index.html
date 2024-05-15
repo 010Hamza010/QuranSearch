@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>باحث الآيات</title>
+	<style type="text/css">
+		@font-face {
+			font-family: "surah";
+			src: url('/fonts/surah.ttf');
+		}
+
+		@font-face {
+			font-family: "ayat";
+			src: url('/fonts/ayat.ttf');
+		}
+
+		body{
+			margin: 0;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			flex-direction: column;
+			min-height: 100vh;
+			background: #2c2c2c;
+		}
+		section{
+			width: 80%;
+			display: flex;
+			flex-direction: column;
+			align-items: flex-end;
+		}
+		nav{
+			color: #ffffff;
+		}
+		form{
+			margin: 2em;
+			width: 90%;
+			text-align: center;
+		}
+		.search{
+			background: #bdc3c7;
+			border: none;
+			outline: none;
+			padding: 1em .5em;
+			width: 40%;
+			direction: rtl;
+		}
+		.button{
+			background: #2ecc71;
+			border: none;
+			border-radius: .5em;
+			padding: .5em;
+			font-size: 1em;
+			cursor: pointer;
+		}
+		aside{
+			display: flex;
+			justify-content: center;
+			flex-direction: row-reverse;
+			margin: .5em 0;
+			text-align: right;
+		}
+		aside .surah{
+			background: #f1c40f;
+			border-top-right-radius: .8em;
+			border-bottom-right-radius: .8em;
+			padding: 0 1em;
+			margin: 0;
+			font-family: surah;
+		}
+		aside .ayah{
+			background: #e67e22;
+			border-top-left-radius: .8em;
+			border-bottom-left-radius: .8em;
+			padding: 0 1em;
+			font-family: ayat;
+		}
+
+		@media only screen and (max-width: 700px){
+			section, form{
+				width: 95%;
+			}
+			.search{
+				width: 80%;
+			}
+		}
+	</style>
+</head>
+<body>
+	<form id="form">
+		<input type="search" name="search" id="search" class="search" placeholder="ابحث عن آية (تدعم regex)">
+		<input type="submit" name="submit" value="بحث" class="button">
+	</form>
+
+	<nav>
+		<h1>عدد النتائج: <span id="result"></span></h1>
+	</nav>
+
+	<section id="section">
+		
+	</section>
+
+	<script type="text/javascript">
+		function BuildResult(_data) {
+			document.getElementById("section").innerHTML = ""
+
+			for (var i = 0; i < _data.length; i++) {
+				var _aside = document.createElement("aside");
+				var _surah = document.createElement("div");
+				var _ayah = document.createElement("div");
+
+				var _surah_content = document.createElement("h1");
+				var _ayah_content = document.createElement("p");
+
+				_surah.className = "surah";
+				_ayah.className = "ayah";
+
+				_surah.appendChild(_surah_content);
+				_ayah.appendChild(_ayah_content);
+
+				_aside.appendChild(_surah);
+				_aside.appendChild(_ayah);
+
+				_surah_content.innerText = _data[i][0] + " " + _data[i][1];
+				_ayah_content.innerText = _data[i][2];
+
+				document.getElementById("section").appendChild(_aside)
+			}
+
+			document.getElementById("result").innerText = _data.length
+		}
+
+		document.getElementById('form').onsubmit = function () {
+			var formData = new FormData();
+			formData.append('search', document.getElementById("search").value);
+
+			fetch("/search", {
+				method: "POST",
+				body: formData
+			}).then(res => {
+				return res.json();
+			}).then(data => {
+				BuildResult(data)
+			});
+
+			return false
+		}
+	</script>
+</body>
+</html>
